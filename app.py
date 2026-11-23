@@ -47,8 +47,8 @@ def admin_required(fn):
         print(f"current_user:{current_user}")
 
         try:
-            # CORRIGIDO: Alterado 'Funcionario.id' para 'Funcionario.id_funcinario'
-            sql = select(Usuario).where(Usuario.id_funcinario == current_user)
+            # CORRIGIDO: Alterado 'Funcionario.id' para 'Funcionario.id_usuario'
+            sql = select(Usuario).where(Usuario.id_usuario == current_user)
             usuario_existente = db_session.execute(sql).scalar()
             print(f'Usuario existente: {usuario_existente}')
 
@@ -101,9 +101,9 @@ def login():
         if usuario_existente and usuario_existente.check_password_hash(senha):
         # criação e configurar token
             acess_token = create_access_token(
-                identity=str(usuario_existente.id_funcinario),
+                identity=str(usuario_existente.id_usuario),
                 additional_claims={
-                    "id_funcinario": str(usuario_existente.id_funcinario),
+                    "id_usuario": str(usuario_existente.id_usuario),
                     "nome": usuario_existente.nome,
                     "token_criado_em": str(datetime.now())
                 },
@@ -163,7 +163,7 @@ def cadastro():
 
         dados = {
             "msg": "Usuário criado com sucesso",
-            "user_id": novo_usuario.id_funcinario
+            "user_id": novo_usuario.id_usuario
         }
         return jsonify(dados), 201
     except Exception as e:
@@ -281,7 +281,7 @@ def obter_detalhes_usuario(id):
 
         # --- 4. MONTAGEM DA RESPOSTA SEGURA ---
         detalhes_usuario = {
-            "id_funcinario": usuario.id_funcinario,
+            "id_usuario": usuario.id_usuario,
             "nome": usuario.nome,
             "email": usuario.email,
 

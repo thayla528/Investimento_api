@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, ForeignKey, select
+from sqlalchemy import create_engine, ForeignKey, select, Numeric, Text
 from sqlalchemy.orm import relationship, sessionmaker, scoped_session, declarative_base
 from sqlalchemy.sql import func
 
@@ -58,7 +58,6 @@ class Usuario_empresa(Base):
     fk_id_empresa = Column(Integer, ForeignKey('empresas.id_empresa'), primary_key=True)
     data_adicao = Column(DateTime, nullable=False, server_default=func.now())
 
-from sqlalchemy import Column, Integer, String, DateTime, Numeric, Text
 
 class Empresa(Base):
     __tablename__ = 'empresas'
@@ -115,7 +114,7 @@ class Cotacao(Base):
     id_cotacao = Column(Integer, primary_key=True, autoincrement=True)
 
     # Relacionamento com a empresa
-    id_empresa = Column(Integer, ForeignKey('empresas.id_empresa'), nullable=False)
+    fk_id_empresa = Column(Integer, ForeignKey('empresas.id_empresa'), nullable=False)
 
     # Preços da ação
     preco_abertura = Column(Numeric(18, 4), nullable=False)
@@ -128,6 +127,40 @@ class Cotacao(Base):
 
     # Data referente à negociação
     data_cotacao = Column(DateTime, nullable=False)
+
+class Indicador_financeiro(Base):
+    id_indicador = Column(Integer, primary_key=True, autoincrement=True)
+    fk_id_empresa = Column(Integer, ForeignKey('empresas.id_empresa'), primary_key=True)
+
+    roic = Column(Numeric(18, 4), nullable=False)
+    roe = Column(Numeric(18, 4), nullable=False)
+    roa = Column(Numeric(18, 4), nullable=False)
+
+    divida = Column(Numeric(20, 2), nullable=False)
+    patrimonio = Column(Numeric(20, 2), nullable=False)
+    lucro_liquido = Column(Numeric(20, 2), nullable=False)
+    payout = Column(Numeric(10, 2), nullable=False)
+
+class Investimento_acao(Base):
+    id_investimento_acao = Column(Integer, primary_key=True, autoincrement=True)
+    fk_id_empresa = Column(Integer, ForeignKey('empresas.id_empresa'), nullable=False)
+    fk_id_investimento = Column(Integer, ForeignKey('investimentos.id_investimento'), nullable=False)
+    num_acoes = Column(Numeric(20, 2), nullable=False)
+    lote = Column(Numeric(20, 2), nullable=False)
+    data_compra = Column(DateTime, nullable=False)
+
+class Investimento(Base):
+    __tablename__ = 'investimentos'
+    id_investimento = Column(Integer, primary_key=True, autoincrement=True)
+    fk_id_usuario = Column(Integer, ForeignKey('usuarios.id_usuario'), nullable=False)
+    status_investimento = Column(String(100), nullable=False)
+    data_criacao = Column(DateTime, nullable=False)
+
+class Historico_investimento(Base):
+    id_historico_investimento = Column(Integer, primary_key=True, autoincrement=True)
+    fk_id_investimento = Column(Integer, ForeignKey('investimentos.id_investimento'), nullable=False)
+    valor_atual = Column(Numeric(20, 2), nullable=False)
+    valor_investido = Column(Numeric(20, 2), nullable=False)
 
 def inicializar_banco():
     Base.metadata.create_all(engine)
